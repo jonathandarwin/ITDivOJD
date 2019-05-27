@@ -1,0 +1,149 @@
+﻿/* LOGIN */
+.divLogin{
+    margin-top:30px;
+    border:1px solid #5a9ad4;
+    padding:20px;
+    color:#5a9ad4;    
+    min-height:100px;
+}
+.errMsg{
+    color:red;
+}
+.divLogout , .divBtnLogin{    
+    text-align:right;                
+}
+.btn{
+    border-radius:0px;
+    padding:10px 30px 10px 30px;
+}
+/* END OF LOGIN */
+
+/* MASTER LAYOUT*/
+.divHeader{
+    padding-top:30px;
+    background-color:#5a9ad4;
+    min-height:100px;
+    color:white;
+    text-align:center;
+}
+.top15{
+    margin-top:15px;
+}
+.bottom15{
+    margin-bottom:15px;
+}
+.left15{
+    margin-left:15px;
+}
+.left50{
+    margin-left:50px;
+}
+.right15{
+    margin-right:15px;
+}
+.right30{
+    margin-right : 30px;
+}
+.divLogout a{
+    margin:20px;
+    text-decoration:none;
+    color:white;
+}
+.colorBlue{
+    color : #5a9ad4;
+}
+.colorBrown{
+    color : #A9A9A9;
+}
+.colorGreen{
+    color: green;
+}
+/* END OF MASTER LAYOUT */
+
+/* NAVIGATION */
+.divNav{
+    background-color:#5a9ad4;       
+    overflow:hidden;
+    padding:18px;
+}
+.divNav a{
+    text-decoration: none;
+    color:white;    
+    padding:20px;
+}
+.divNav a:hover{
+    color:red;
+}
+/* END OF NAVIGATION */
+
+/* HOME */
+.divHome{
+    margin:20px;
+    background-color:red;
+    padding:10px;
+}
+textarea{
+    resize:vertical;
+}
+span:hover{
+    cursor:pointer;
+}
+.ProjectName, .securityProject{
+    color: #5a9ad4;
+}
+.dot-top{
+    border-top:1px dotted #A9A9A9;
+}
+.padding10{
+    padding:10px;
+}
+/* END OF HOME */
+
+/*CONTENT*/
+.divContent{
+    margin:20px 30px 0px 30px;
+}
+/* END OF CONTENT*/
+
+/* USER MANAGEMENT */
+.btnBlue{
+    color:white !important;
+    background-color:#5a9ad4 !important;
+}
+.btnWhite{
+    color:#5a9ad4 !important;
+    background-color:white !important;
+    border:1px solid #5a9ad4 !important;
+}
+td span.spanEdit{
+    text-decoration : none;
+    color:black;
+}
+td span.spanEdit:hover, td span:hover{
+    cursor:pointer;
+}
+/* END OF USER MANAGEMENT */
+
+/* BACKLOG */
+#divSprint{
+    border-right:2px solid #A9A9A9;
+    min-height:100px;
+}
+/*#divWorkItem{
+    border-left:1px solid #A9A9A9;
+    min-height:100px;
+}*/
+.sprintItem{
+    margin-left:20px;    
+    color: #5a9ad4;
+}
+.Hover:hover{
+    cursor:pointer;
+}
+.workItem{
+    border-left:8px solid #5a9ad4;
+}
+.Task{
+    border-left:8px solid yellow;
+}
+/* END OF BACKLOG */

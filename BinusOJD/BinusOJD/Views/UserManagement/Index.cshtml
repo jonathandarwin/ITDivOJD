@@ -1,0 +1,240 @@
+﻿@model BinusOJD.Models.User
+@{ 
+    List<SelectListItem> listRole = ViewBag.listRole;
+    string HeaderModal = ViewBag.Type;
+    bool? Success = ViewBag.Success;
+    
+}
+
+@if (Success == true)
+{
+    <script>
+        swal({
+            title: '@HeaderModal Success',
+            text: 'Data has been saved!',
+            type: 'success'
+        }).then((ok) => {
+            if (ok) {
+                window.location = '@Url.Action("Index", "UserManagement")';
+            }
+        });
+    </script>
+}
+else if (Success == false)
+{
+    <script>
+        swal({
+            title: 'Error',
+            text: 'Error while saving your data... Please try again',
+            type: 'error'
+        });
+    </script>
+}
+<div class="divContent">
+    <div class="row bottom15">
+        <div class="col-md-6">
+            <h1>Users</h1>
+        </div>
+
+        <div style="padding-top:25px">
+            <div class="col-md-3">
+                <input type="text" class="form-control" id="txtSearch" placeholder="Search..." />
+            </div>
+            <div class="col-md-3">                
+                @Html.ActionLink("New User", "NewUser", "UserManagement", new { @class="btn btn-primary"})
+            </div>
+        </div>
+        
+    </div>
+
+    <div class="row top15">
+        <div class="col-md-12">
+            @*<table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Username</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr>
+                        <td>Loading...</td>
+                    </tr>                   
+                </tbody>
+            </table>*@
+            <div class="row">
+                <div class="col-md-2">                    
+                </div>
+                <div class="col-md-2">
+                    <b>Username</b>
+                </div>
+                <div class="col-md-2">
+                    <b>Role</b>
+                </div>
+                <div class="col-md-2">
+                    <b>Status</b>
+                </div>
+                <div class="col-md-2">                    
+                </div>
+            </div>
+
+            <div id="tableUser" class="top15">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" role="dialog" id="modalNewUser">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">            
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <h1 id="HeaderModal">@(HeaderModal == "Update" ? Html.Raw("Update") : Html.Raw("Add")) </h1> 
+                        @if (HeaderModal != "Update")
+                        {
+                            <span id="spanNewUser">New User</span>
+                            <br />
+                        }                                                                
+                        <span class="errMsg">
+                            @Html.ValidationMessageFor(model => model.Username)
+                        </span>                        
+                        <br />                    
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-12">                           
+                        @using (Html.BeginForm("InsertUpdateUser", "UserManagement", FormMethod.Post, new { enctype = "multipart/form-data", id = "formInsertUpdateUser" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            @Html.HiddenFor(model => model.IDUser)
+                            @Html.LabelFor(model => model.Username)
+
+                            @Html.TextBoxFor(model => model.Username, new { @class = "form-control" })
+                            <br /><br />
+                            @Html.LabelFor(model => model.Password)
+                            @Html.TextBoxFor(model => model.Password, new { @class = "form-control", @type = "Password" })
+                            <br /><br />
+                            @Html.LabelFor(model => model.Role)
+                            @Html.DropDownListFor(model => model.Role, listRole, "Select Role", new { @class = "form-control" })
+                            <br /><br />
+                            if(Model != null && Model.PhotoPath != "" && Model.PhotoPath != null)
+                            {
+                                <img src="@Url.Content(String.Format("~/Image/{0}", Model.PhotoPath))" width="50" height="50" alt="Photo" />
+                                <br /><br />
+                            }
+                            @Html.LabelFor(model => model.PhotoPath, "Photo")
+                            @Html.HiddenFor(model => model.PhotoPath)
+                            <input type="file" id="filePhoto" name="filePhoto" accept="image/gif,image/jpeg" />
+                            <br /><br />
+                            @Html.CheckBoxFor(model => model.Status)
+                            @Html.LabelFor(model => model.Status)
+                            <br /><br />
+                            <button type="submit" id="btnSave" class="btnBlue btn btn-primary">Save and Close</button>
+                            <button type="button" id="btnCancel" class="btnWhite btn" data-dismiss="modal">Cancel</button>
+                        }               
+                    </div>
+                </div>                
+            </div>            
+        </div>
+    </div>    
+</div>
+
+<script>    
+    function PushUser(data)
+    {        
+        $('#tableUser').html('');
+        var string = '';
+        data.forEach(function (item) {
+            @*string += '<tr>';
+            if (item.PhotoPath != '' && item.PhotoPath != null) {
+                string += '<td><img src="/Image/' + item.PhotoPath + '" width="50" height="50" alt="Photo"></td>';
+            } else {
+                string += '<td></td>';
+            }
+            string += '<td>' + item.Username + '</td>';
+            if (item.Role == 1) {
+                string += '<td>Admin</td>';
+            }
+            else if (item.Role == 2) {
+                string += '<td>User</td>';
+            }
+
+            if (item.Status == true) {
+                string += '<td>Active</td>';
+            }
+            else {
+                string += '<td>Inactive</td>';
+            }            
+            string += '<td><span class="glyphicon glyphicon-pencil"><a href="@Url.Action("EditUser", "UserManagement")?IDUser=' + item.IDUser +'">Edit</a></span></td></tr>';*@
+
+            string += '<div class="row dot-top padding10">';
+
+            if (item.PhotoPath != '' && item.PhotoPath != null) {
+                string += '<div class="col-md-2"><img src="/Image/' + item.PhotoPath + '" width="50" height="50" alt="Photo"></div>';
+            } else {
+                string += '<div class="col-md-2"></div>';
+            }
+
+            string += '<div class="col-md-2">' + item.Username + '</div>';
+
+            if (item.Role == 1) {
+                string += '<div class="col-md-2">Admin</div>';
+            }
+            else if (item.Role == 2) {
+                string += '<div class="col-md-2">User</div>';
+            }
+
+            if (item.Status == true) {
+                string += '<div class="col-md-2">Active</div>';
+            }
+            else {
+                string += '<div class="col-md-2"></div>';
+            }
+
+            string += '<div class="col-md-2"><span class="glyphicon glyphicon-pencil"><a href="@Url.Action("EditUser", "UserManagement")?IDUser=' + item.IDUser + '">Edit</a></span></div>';
+            string += '</div>';
+        });
+        $('#tableUser').append(string);
+    }
+
+
+    $(document).ready(function () {
+        // SHOW MODAL
+        if ('@ViewBag.OpenModal' == 'True') {
+            $('#modalNewUser').modal();
+        }
+        
+        // INIT
+        $.ajax({
+            url:'@Url.Action("GetAllUser","UserManagement")',
+            type: 'POST',
+            success: function (data) {
+                PushUser(data);
+            }
+        });
+
+        // SEARCH
+        $('#txtSearch').keyup(function () {
+            $.ajax({
+                url: '@Url.Action("SearchUser","UserManagement")',
+                type: 'POST',
+                data:{
+                    Search : $('#txtSearch').val()
+                },
+                success: function (data) {
+                    PushUser(data);
+                }
+            });
+        });
+    });
+</script>
+

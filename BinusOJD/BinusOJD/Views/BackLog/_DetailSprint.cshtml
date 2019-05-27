@@ -1,0 +1,479 @@
+﻿@using BinusOJD.Models
+@model BinusOJD.ViewModels.BackLogModels
+
+@{    
+    List<WorkItem> listWorkItem = ViewBag.listWorkItem;
+    List<SelectListItem> listStateWorkItem = ViewBag.listStateWorkItem;
+    List<SelectListItem> listStateTask = ViewBag.listStateTask;
+    List<SelectListItem> listUser = ViewBag.listUser;
+}
+
+<div class="row" id="divDetailSprint">
+    <div class="col-md-12">
+
+        <div class="row bottom15">
+            <div class="col-md-6" style="color: #5a9ad4;">
+                <h2>@ViewBag.Sprintname</h2>                
+                <span id="addWorkItem" class="left15 Hover toggleModal" data-toggle="modal" data-target="#modalAddWorkItem">Add Work Item</span>                                
+            </div>
+
+            <div class="col-md-3 col-md-offset-3" style="margin-top:40px">
+                <span id="editSprint" style="color: #5a9ad4;" data-toggle="modal" data-target="#modalEditSprint" class="Hover toggleModal">Set Dates</span>
+                <br />                
+                @if (Model.Sprint.StartDate == DateTime.MinValue)
+                {
+                    <span>Not Set</span>
+                }
+                else
+                {
+                    <span>@Model.Sprint.StartDate.ToString("dd MMM yy") - @Model.Sprint.EndDate.ToString("dd MMM yy")</span>
+                }                
+            </div>
+        </div>
+
+        <!-- DIV WORK ITEM -->
+        <div class="row top15" div="divWorkItem">
+            <div class="col-md-12">
+                @if(listWorkItem.Count == 0)
+                {
+                    <center><h3>No Work Item</h3></center>
+                }
+                else
+                {       
+                    <div class="row top15 colorBrown">
+                        <div class="col-md-4">
+                            <span>Work Item</span>
+                        </div>
+
+                        <div class="col-md-2">
+                            <span>State</span>
+                        </div>
+
+                        <div class="col-md-3">
+                            <span>Signed To</span>
+                        </div>
+
+                        <div class="col-md-3">                            
+                        </div>
+                    </div>
+
+                    <!-- SET WORK ITEM -->
+                    for (int i = 0; i < listWorkItem.Count; i++)
+                    {
+                        <div class="row top15">
+                            @Html.Hidden("hddIDWorkModule", listWorkItem[i].IDWorkItem)
+                            <div class="col-md-4 titleWorkItem">
+                                <span class="glyphicon glyphicon-plus left15 colorGreen Hover addTask" data-toggle="modal" data-target="#modalAddTask"></span><span class="workItem"> @listWorkItem[i].Title</span>
+                            </div>
+
+                            <div class="col-md-2">
+                                <span>@listWorkItem[i].StateName</span>
+                            </div>
+
+                            <div class="col-md-3">                                
+                            </div>
+
+                            <div class="col-md-3">
+                                <button class="btnEditWorkItem btn-primary" data-toggle="modal" data-target="#modalAddWorkItem"><span class="glyphicon glyphicon-pencil"></span> Edit</button>
+                                <button class="btnRemoveWorkItem btn-danger"><span class="glyphicon glyphicon-remove"></span> Remove</button>
+                            </div>
+                        </div>    
+                                            
+                           <!-- SET TASK -->
+                        if (listWorkItem[i].Task != null)
+                        {
+                            List<Task> listTask = listWorkItem[i].Task;
+                            for (int j = 0; j < listTask.Count; j++)
+                            {
+                                <div class="row top15">
+                                    @Html.Hidden("hddIDTask", listTask[j].IDTask)
+                                    <div class="col-md-4 titleTask">
+                                        <span class="Task left50"> @listTask[j].Title</span>
+                                    </div>
+
+                                    <div class="col-md-2">
+                                        <span>@listTask[j].StateName</span>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <span>@(listTask[j].UsernameAssignTo == null || listTask[j].UsernameAssignTo == "" ? 
+                                                "Not Signed Yet" : listTask[j].UsernameAssignTo)</span>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <button class="btnEditTask btn-primary" data-toggle="modal" data-target="#modalAddTask"><span class="glyphicon glyphicon-pencil"></span> Edit</button>
+                                        <button class="btnRemoveTask btn-danger"><span class="glyphicon glyphicon-remove"></span> Remove</button>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    }
+                }
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<!-- MODAL ADD WORK ITEM -->
+<div class="modal fade" role="dialog" id="modalAddWorkItem">
+    <div class="modal-dialog">
+
+        <!-- MODAL CONTENT -->
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="row bottom15">
+                    <div class="col-md-12">
+                        <h1 id="HeaderModal">Add</h1>
+                        <span id="spanNewUser">Work Items</span>                                                
+                        <br />
+                    </div>
+                </div>
+
+                <div class="row top15">
+                    <div class="col-md-12">
+                        @using (Ajax.BeginForm("InsertUpdateWorkItem", "BackLog", new AjaxOptions { HttpMethod = "POST", OnBegin = "DisabledButton()", OnSuccess = "UnDisabledButton(data)" }, new { id = "formInsertUpdateWorkItem" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            @Html.HiddenFor(model => model.WorkItem.IDWorkItem)
+                            @Html.HiddenFor(model => model.Sprint.IDSprint)
+
+                            @Html.LabelFor(model => model.WorkItem.Title)
+                            @Html.TextBoxFor(model => model.WorkItem.Title, new { @class = "form-control", @autocomplete="off" })
+                            <br /><br />
+                            @Html.LabelFor(model => model.WorkItem.IDState, "State")
+                            @Html.DropDownListFor(model => model.WorkItem.IDState, listStateWorkItem, new { @class="form-control"})                        
+                            <br />
+                            <span class="errMsg" id="errWorkItem"></span>
+                            <br />
+                            <br />
+                            <button type="submit" id="btnSaveWorkItem" class="btnBlue btnSave btn btn-primary">Save and Close</button>
+                            <button type="button" id="btnCancelWorkItem" class="btnWhite btnCancel btn" data-dismiss="modal">Cancel</button>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- MODAL ADD TASK -->
+<div class="modal fade" role="dialog" id="modalAddTask">
+    <div class="modal-dialog">
+
+        <!-- MODAL CONTENT -->
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="row bottom15">
+                    <div class="col-md-12">
+                        <h1 id="HeaderModal">Add</h1>
+                        <span id="spanAddTask"></span>
+                        <br />
+                        <br />
+                    </div>
+                </div>
+
+                <div class="row top15">
+                    <div class="col-md-12">
+                        @using (Ajax.BeginForm("InsertUpdateTask", "BackLog", new AjaxOptions { HttpMethod = "POST", OnBegin = "DisabledButton()", OnSuccess = "UnDisabledButton(data)" }, new { id = "formInsertUpdateTask" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            @Html.HiddenFor(model => model.Task.IDTask)
+                            @Html.HiddenFor(model => model.Task.IDWorkItem)
+
+                            @Html.LabelFor(model => model.Task.Title)
+                            @Html.TextBoxFor(model => model.Task.Title, new { @class = "form-control", @autocomplete = "off" })
+                            <br /><br />
+                            @Html.LabelFor(model => model.Task.AssignTo, "Assign To")
+                            @Html.DropDownListFor(model => model.Task.AssignTo, listUser, new { @class = "form-control" })
+                            <br /><br />
+                            @Html.LabelFor(model => model.Task.IDState, "State")
+                            @Html.DropDownListFor(model => model.Task.IDState, listStateTask, new { @class = "form-control" })
+                            <br />
+                            <span class="errMsg" id="errTask"></span>
+                            <br />
+                            <br />
+                            <button type="submit" id="btnSaveTask" class="btnBlue btnSave btn btn-primary">Save and Close</button>
+                            <button type="button" id="btnCancelTask" class="btnWhite btnCancel btn" data-dismiss="modal">Cancel</button>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL EDIT SPRINT -->
+<div class="modal fade" role="dialog" id="modalEditSprint">
+    <div class="modal-dialog">
+
+        <!-- MODAL CONTENT -->
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="row bottom15">
+                    <div class="col-md-12">
+                        <h1 id="HeaderModal">Edit Iteration</h1>
+                        <span class="errMsg" id="errTask"></span>
+                        <br />
+                        <br />
+                        <h3 id="headerSprint">@Model.Sprint.SprintName</h3>
+                    </div>
+                </div>
+
+                <div class="row top15">
+                    <div class="col-md-12">
+                        @using (Ajax.BeginForm("UpdateSprint", "BackLog", new AjaxOptions { HttpMethod = "POST", OnBegin = "DisabledButton()", OnSuccess = "UnDisabledButton(data)" }, new { id = "formUpdateSprint" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            @Html.HiddenFor(model => model.Sprint.IDSprint)
+
+                            @Html.LabelFor(model => model.Sprint.SprintName, "Iteration Name")
+                            @Html.TextBoxFor(model => model.Sprint.SprintName, new { @class = "form-control", @autocomplete = "off" })
+                            <br /><br />
+                            @Html.LabelFor(model => model.Sprint.StartDate, "Start Date")
+                            @Html.TextBoxFor(model => model.Sprint.StartDate, "{0:dd MMMM yyyy}", new { @class="form-control datetimepicker", @autocomplete = "off" })
+                            <br /><br />
+                            @Html.LabelFor(model => model.Sprint.EndDate, "End Date")
+                            @Html.TextBoxFor(model => model.Sprint.EndDate, "{0:dd MMMM yyyy}", new { @class = "form-control datetimepicker", @autocomplete = "off" })
+                            <br />                            
+                            <br />
+                            <button type="submit" id="btnSaveSprint" class="btnBlue btnSave btn btn-primary">Save and Close</button>
+                            <button type="button" id="btnCancelSprint" class="btnWhite btnCancel btn" data-dismiss="modal">Cancel</button>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    function DisabledButton()
+    {
+        $('.btnSave').attr('disabled', true);
+        $('.btnCancel').attr('disabled', true);
+        $('.errMsg').html('');
+    }
+
+    function ClearModal()
+    {
+        $('.errMsg').html('');
+        $('.btnSave').attr('disabled', false);
+        $('.btnCancel').attr('disabled', false);
+
+        // CLEAR MODAL WORK ITEM
+        $('#WorkItem_Title').val('');
+        $('#WorkItem_IDState').val(0);
+        $('#WorkItem_IDWorkItem').val(0);
+
+        // CLEAR MODAL TASK
+        $('#Task_IDTask').val(0);
+        $('#Task_Title').val('');
+        $('#Task_IDState').val(0);
+        $('#Task_AssignTo').val(0);
+        $('#Task_IDWorkItem').val(0);
+
+    }
+
+
+    function UnDisabledButton(data)
+    {
+        $('.btnSave').attr('disabled', false);
+        $('.btnCancel').attr('disabled', false);
+
+        if (data.status == "true") {
+            var title = "";
+            if (data.type == "insert") {
+                title = "Insert Success";
+            }
+            else {
+                title = "Update Success";
+            }
+
+            swal({
+                title: title,
+                text: 'Data has been saved!',
+                type:'success'
+            }).then((ok) => {
+                if (ok) {
+                    window.location = '@Url.Action("Index", "BackLog", new { IDProject = ViewBag.IDProject })';
+                }
+            });
+        }
+        else if(data.status == "false"){
+            swal({
+                title: 'Error',
+                text: 'Error while saving your data... Please try again!',
+                type:'error'
+            });
+        }
+        else if(data.status == "empty"){
+            $('.errMsg').text('Please input your title');
+        }
+        else if(data.status == "unselected"){
+            $('.errMsg').text('Please input your state');
+        }
+        else if (data.status == "startdate") {
+            $('.errMsg').text('Please input start date');
+        }
+        else if (data.status == "enddate") {
+            $('.errMsg').text('Please input end date');
+        }
+        else if (data.status == "larger") {
+            $('.errMsg').text('start date should be before end date');
+        }
+    }
+
+
+    function DeleteAlert(data)
+    {
+        var title = "";
+        var text = "";
+        var type = "";
+
+        if (data.status == "true") {
+            title = "Deleted";
+            text = "Data has been deleted!";
+            type = "success";
+        }
+        else if (data.status == "false") {
+            title = "Error";
+            text = "Error while deleting the data... Please try again";
+            type = "error";
+        }
+
+        swal({
+            title: title,
+            text: text,
+            type: type
+        }).then((ok) => {
+            if (ok) {
+                window.location = '@Url.Action("Index", "BackLog", new { IDProject = ViewBag.IDProject })';
+            }
+        });
+    }
+
+
+    $(document).ready(function () {
+        // DATETIME PICKER
+        $('.datetimepicker').datetimepicker({
+            format: 'd F Y'
+        });        
+
+        // CLEAR THE ERR MSG AND UNDISABLED BUTTON IN MODAL
+        $(document).on('click', '.toggleModal', function () {
+            ClearModal();
+        });
+
+        // SET THE SELECTED WORK ITEM ID
+        $(document).on('click', '.addTask', function () {
+            ClearModal();
+
+            var IDWorkItem = $(this).parent().siblings('#hddIDWorkModule').val();
+            var titleWorkItem = $(this).siblings('.workItem').text();
+
+            $('#Task_IDWorkItem').val(IDWorkItem);
+            $('#spanAddTask').html(titleWorkItem + ' Task');
+        });
+
+        // EDIT WORK ITEM
+        $(document).on('click', '.btnEditWorkItem', function () {
+            var IDWorkItem = $(this).parent().siblings('#hddIDWorkModule').val();
+
+            $.ajax({
+                url: '@Url.Action("GetWorkItemByID", "BackLog")',
+                type: 'POST',
+                data: {
+                    IDWorkItem : IDWorkItem
+                },
+                success: function (data) {
+                    $('#WorkItem_Title').val(data.Title);
+                    $('#WorkItem_IDState').val(data.IDState);
+                    $('#WorkItem_IDWorkItem').val(data.IDWorkItem);
+                }
+            });
+        });
+
+        // EDIT TASK
+        $(document).on('click', '.btnEditTask', function () {
+            var IDTask = $(this).parent().siblings('#hddIDTask').val();
+
+            $.ajax({
+                url: '@Url.Action("GetTaskByID", "BackLog")',
+                type: 'POST',
+                data: {
+                    IDTask: IDTask
+                },
+                success: function (data) {
+                    $('#Task_IDTask').val(data.IDTask);
+                    $('#Task_Title').val(data.Title);
+                    $('#Task_IDState').val(data.IDState);
+                    $('#Task_AssignTo').val(data.AssignTo);
+                    $('#Task_IDWorkItem').val(data.IDWorkItem);
+                }
+            });
+        });       
+
+        // DELETE WORK ITEM
+        $(document).on('click', '.btnRemoveWorkItem', function () {
+            var IDWorkItem = $(this).parent().siblings('#hddIDWorkModule').val();
+            var TitleWorkItem = $(this).parent().siblings('.titleWorkItem').find('span.workItem').text();
+
+            swal({
+                title: 'Delete Work Item',
+                text: 'Are you sure want to delete work item "' + TitleWorkItem + '"?',
+                type: 'warning',
+                icon: 'warning',
+                buttons: true,
+                dangerMode: true
+            }).then((willDelete) =>{
+                if (willDelete) {
+                    $.ajax({
+                        url: '@Url.Action("DeleteWorkItem", "BackLog")',
+                        type: 'POST',
+                        data: {
+                            IDWorkItem : IDWorkItem
+                        },
+                        success: function (data) {
+                            DeleteAlert(data);
+                        }
+                    });
+                }
+            });
+        });
+
+
+        // DELETE TASK
+        $(document).on('click', '.btnRemoveTask', function () {
+            var IDTask = $(this).parent().siblings('#hddIDTask').val();
+            var TitleTask = $(this).parent().siblings('.titleTask').find('span.Task').text();
+
+            swal({
+                title: 'Delete Task',
+                text: 'Are you sure want to delete task "' + TitleTask + '"?',
+                type: 'warning',
+                icon: 'warning',
+                buttons: true,
+                dangerMode: true
+            }).then((willDelete) => {
+                if (willDelete) {
+                    $.ajax({
+                        url: '@Url.Action("DeleteTask", "BackLog")',
+                        type: 'POST',
+                        data: {
+                            IDTask: IDTask
+                        },
+                        success: function (data) {
+                            DeleteAlert(data);
+                        }
+                    });
+                }
+            });
+        });
+    });
+
+</script>

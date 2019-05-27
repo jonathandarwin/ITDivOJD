@@ -1,0 +1,90 @@
+﻿@using BinusOJD.Models
+
+@{
+    List<Sprint> PastSprint = ViewBag.PastSprint;
+    List<Sprint> CurrentSprint = ViewBag.CurrentSprint;
+    List<Sprint> FutureSprint = ViewBag.FutureSprint;
+
+}
+
+<div class="row">
+    <div class="col-md12">
+
+        <div class="row bottom15">
+            <div class="col-md-12">
+                <h1>Backlog Items - @ViewBag.ProjectName</h1>
+            </div>
+        </div>
+
+        <div class="row top15">
+            <div class="col-md-3" id="divSprint">
+                <!-- SPRINT -->
+                <div class="sectionSprint">
+                    <h4>Past</h4>
+                    <div class="sprintItem Hover">
+                        @if (PastSprint.Count == 0 || PastSprint == null)
+                        {
+                            <div class="sprint">No Sprint</div>
+                        }
+                        else
+                        {
+                            for (int i = 0; i < PastSprint.Count; i++)
+                            {
+                            <div class="sprint" id="@PastSprint[i].IDSprint">@PastSprint[i].SprintName</div>
+                            }
+                        }
+                    </div>
+                </div>
+
+                <div class="sectionSprint">
+                    <h4>Current</h4>
+                    <div class="sprintItem Hover">
+                        @if (CurrentSprint.Count == 0)
+                        {
+                            <div class="sprint">No Sprint</div>
+                        }
+                        else
+                        {
+                            for (int i = 0; i < CurrentSprint.Count; i++)
+                            {
+                                <div class="sprint" id="@CurrentSprint[i].IDSprint">@CurrentSprint[i].SprintName</div>
+                            }
+                        }                        
+                    </div>
+                </div>
+
+                <div class="sectionSprint">
+                    <h4>Future</h4>
+                    <div class="sprintItem Hover">
+                        @if (FutureSprint.Count == 0)
+                        {
+                            <div>No Sprint</div>
+                        }
+                        else
+                        {
+                            for (int i = 0; i < FutureSprint.Count; i++)
+                            {
+                                <div class="sprint" id="@FutureSprint[i].IDSprint">@FutureSprint[i].SprintName</div>
+                            }
+                        }                        
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-9" id="divWorkItem">
+                <!-- WORK ITEM -->
+                <h2 id="headerSprint" style="text-align:center;" class="colorBlue">No Sprint Selected</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+        $(document).on('click', 'div.sprintItem div.sprint', function () {
+            $('#headerSprint').html('Loading...');
+            $('#divWorkItem').load('@Url.Action("_DetailSprint", "BackLog")?IDSprint=' + $(this)[0].id);
+        });
+    });
+</script>

@@ -1,0 +1,46 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @Scripts.Render("~/bundles/sweetalert")
+    @*<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>*@    
+    @*<script type="text/javascript" src="/scripts/moment.min.js"></script>    
+    <script type="text/javascript" src="/scripts/bootstrap-datetimepicker.*js"></script>*@
+</head>
+<body>              
+    <div class="row divHeader">
+        <div class="col-md-6 col-lg-offset-3">
+            <h1>Welcome, @Session["Username"].ToString()</h1>
+        </div>
+
+        <div class="col-md-3 divLogout">
+            <a href="@Url.Action("DoLogout", "Login")">Log Out</a>
+        </div>
+    </div>
+
+    <div class="divNav">
+        <a href="@Url.Action("Index","Home")">Projects</a>
+        @if (Convert.ToInt32(Session["Role"]) == 1)
+        {
+            <a href="@Url.Action("Index","UserManagement")">User Management</a>
+        }
+
+    </div>
+
+    <div class="container">
+        @RenderBody()
+    </div>    
+</body>
+</html>
+
+<script>
+    $('#btnLogout').click(function () {
+        window.location = '@Url.Action("DoLogout", "Login")';
+    });
+</script>

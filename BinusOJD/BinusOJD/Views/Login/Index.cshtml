@@ -1,0 +1,61 @@
+﻿@model BinusOJD.Models.User
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+</head>
+<body>   
+    <div class="container">
+        @using (Html.BeginForm("Index", "Login", FormMethod.Post, new { @id = "formLogin" }))
+        {
+            @Html.AntiForgeryToken()
+            <div class="row">
+                <div class="col-md-4 col-lg-offset-4 divLogin">
+                    <h2>Binus</h2>
+                    <span style="color:#333">Project Management</span>
+
+                    <br />
+                    <br />
+
+                    <span class="errMsg">
+                        @Html.ValidationMessageFor(model => model.Username)
+
+                    </span>
+
+                    <br />
+                    <br />
+
+                    <label>Username</label>
+                    @Html.TextBoxFor(model => model.Username, new { @class = "form-control", @placeholder = "Username", @autocomplete = "off" })
+
+                    <br />
+
+                    <label>Password</label>
+                    @Html.TextBoxFor(model => model.Password, new { @class = "form-control", @type = "Password", @placeholder = "Password", @autocomplete = "off" })
+
+                    <br />
+
+                    <div class="divBtnLogin">
+                        <button class="btn btn-primary">Sign In</button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+</body>
+</html>
+
+<script>
+    $('#btnLogout').click(function () {
+        window.location = '@Url.Action("DoLogout", "Login")';
+    });
+</script>
+
+

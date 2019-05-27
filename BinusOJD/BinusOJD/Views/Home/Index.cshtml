@@ -1,0 +1,271 @@
+﻿@model BinusOJD.Models.Project
+<div class="divContent">
+    <div class="row bottom15">
+        <div class="col-md-6">
+            <h1>Projects</h1>
+        </div>
+
+        <div style="padding-top:25px">
+            <div class="col-md-3">
+                <input type="text" class="form-control" id="txtSearch" placeholder="Filter projects and teams"/>
+            </div>
+            @if (Convert.ToInt32(Session["Role"]) == 1)
+            {
+                <div class="col-md-3">
+                    <button class="btn btn-primary" id="btnNewProject" data-toggle="modal" data-target="#modalNewProject">New Project</button>
+                </div>
+            }
+            
+        </div>
+
+    </div>
+
+    <div class="row top15">
+        <div class="col-md-12 tableProject">                             
+        </div>
+    </div>
+</div>
+
+
+
+
+<!-- MODAL NEW PROJECT  -->
+<div class="modal fade" role="dialog" id="modalNewProject">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <h1 id="HeaderModal">Create New Project</h1>
+                        <span id="spanNewUser">Projects contain your source code, work items, automated builds and more.</span>                        
+                        <br />
+                        <br />
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        @using (Ajax.BeginForm("InsertUpdateProject", "Home", new AjaxOptions { HttpMethod = "POST", OnBegin = "DisabledButton()", OnSuccess = "UnDisabledButton(data)" }, new { id = "formInsertUpdateProject" }))
+                        {
+                            @Html.AntiForgeryToken()                            
+                            <label>Project Name <span class="errMsg">*</span></label>
+                            @Html.TextBoxFor(model => model.ProjectName, new { @class = "form-control" })
+                            <br /><br />
+                            @Html.LabelFor(model => model.Description)
+                            @Html.TextAreaFor(model => model.Description, new { @class = "form-control" })
+                            <br />
+                            <span class="errMsg" id="errProject"></span>
+                            <br />
+                            <div style="text-align:right">
+                                <button type="submit" id="btnCreate" class="btnBlue btn btn-primary">Save and Close</button>
+                                <button type="button" id="btnCancel" class="btnWhite btn" data-dismiss="modal">Cancel</button>
+                            </div>                            
+                        }
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- MODAL SECURITY  -->
+<div class="modal fade" role="dialog" id="modalSecurity">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">            
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">                        
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h1 id="HeaderModal">Add Authorized User</h1>                                                
+                    </div>
+                </div>
+
+                <div class="row top15" style="margin:10px;">
+                    <div class="col-md-12">
+                        @Html.Hidden("hddIDProject")                         
+                        <div class="tableUser">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function DisabledButton() {
+        $('#btnCreate').attr('disabled', true);
+        $('#btnCancel').attr('disabled', true);
+    }
+
+    function UnDisabledButton(data) {
+        $('#btnCreate').attr('disabled', false);
+        $('#btnCancel').attr('disabled', false);
+        var errMsg = "";
+
+        if (data.status == "true") {
+            var string = "";
+            if (data.type == "insert") {
+                string = "Insert Success";
+            }
+            else {
+                string = "Update Success";
+            }
+            swal({
+                title: string,
+                text: 'Data has been saved!',
+                type: 'success'
+            }).then((ok) => {
+                if (ok) {
+                    window.location = '@Url.Action("Index", "Home")';
+                }
+            });
+        }
+        else if (data.status == "false") {
+            var string = "";
+            if (data.type == "insert") {
+                string = "Insert Failed";
+            }
+            else {
+                string = "Update Failed";
+            }
+            swal({
+                title: string,
+                text: 'Error while saving your data... Please try again',
+                type: 'error'
+            });
+        }
+        else if (data.status == "empty") {
+            errMsg = "Please input your project name";
+        }        
+        $('#errProject').html(errMsg);
+    }
+
+    function PushProject(data)
+    {
+        var string = "";
+        $('.tableProject').html('');
+        data.forEach(function (item) {     
+            string += '<div class="row dot-top padding10">';
+            string += '<div class="col-md-5"><span class="ProjectName" id="' + item.IDProject + '">' + item.ProjectName + '</span></div>';
+            if ('@Convert.ToInt32(Session["Role"])' == 1) {
+                string += '<div class="col-md-3 col-md-offset-4"><span class="securityProject" id="' + item.IDProject + '" data-toggle="modal" data-target="#modalSecurity">Security</span></div>';
+            }            
+            string += '</div>';
+        });        
+        $('.tableProject').append(string);        
+    }
+
+    function PushUser(data)
+    {
+        var string = "";
+        $('.tableUser').html('');
+        data.forEach(function (item) {                
+            string += '<div class="row dot-top padding10">';
+            if (item.isAuth == true) {
+                string += '<div class="col-md-1"><input type="checkbox" id="' + item.IDUser + '" checked="checked"></div>';
+            }
+            else {
+                string += '<div class="col-md-1"><input type="checkbox" id="' + item.IDUser + '"></div>';
+            }
+
+            if (item.PhotoPath != null && item.PhotoPath != "") {
+                string += '<div class="col-md-3"><img src="/Image/' + item.PhotoPath + '" width="50" height="50" alt="Photo"></div>';
+            }
+            else {
+                string += '<div class="col-md-3"></div>';
+            }
+            string += '<div class="col-md-8">' + item.Username + '</div>';            
+            string += '</div>';
+        });
+        $('.tableUser').append(string);
+    }
+
+    $(document).ready(function () {
+        // INIT
+        $.ajax({
+            url: '@Url.Action("SearchProject", "Home")',
+            type: 'POST',
+            data:{
+                Project: '',
+                IDUser : '@Convert.ToInt32(Session["IDUser"])'
+            },
+            success: function (data) {
+                PushProject(data);
+            }
+        });
+
+        // SEARCH
+        $('#txtSearch').keyup(function () {             
+            $.ajax({
+                url: '@Url.Action("SearchProject","Home")',
+                type: 'POST',
+                data: {
+                    Project: $('#txtSearch').val(),
+                    IDUser : '@Convert.ToInt32(Session["IDUser"])'
+                },
+                success: function (data) {
+                    PushProject(data);
+                }
+            });
+        });
+
+        // SECURITY
+        $(document).on('click', 'span.securityProject', function () {
+            $('#hddIDProject').val($(this)[0].id);
+
+            $.ajax({
+                url: '@Url.Action("GetAllUserWithAuth", "Home")',
+                type: 'POST',
+                data:{
+                    IDProject : $('#hddIDProject').val()
+                },
+                success: function (data) {
+                    PushUser(data);
+                }
+            });
+        });
+
+        // CHANGE AUTH
+        $(document).on('change', '.tableUser input:checkbox', function () {
+            var IDProject = $('#hddIDProject').val();
+            var IDUser = $(this)[0].id;
+            var isAuth = $(this).is(':checked');            
+                        
+            $.ajax({
+                url: '@Url.Action("InsertUpdateAuthProject", "Home")',
+                type: 'POST',
+                data:{
+                    IDUser: IDUser,
+                    IDProject: IDProject,
+                    isAuth:isAuth
+                },
+                success: function (data) {
+                    if (data.status == "false") {
+                        swal({
+                            title: 'Error', 
+                            text: 'Error occur while saving... Please try again',
+                            type: 'error'
+                        }).then((ok) => {
+                            if (ok) {
+                                window.location = '@Url.Action("Index", "Home")';
+                            }
+                        });
+                    }                   
+                }
+            });
+        });
+
+        // REDIRECT TO BACKLOG
+        $(document).on('click', 'span.ProjectName', function () {
+            window.location = '@Url.Action("Index", "BackLog")?IDProject=' + $(this)[0].id;
+        });
+    });
+</script>
